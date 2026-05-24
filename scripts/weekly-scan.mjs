@@ -75,16 +75,18 @@ async function supabaseInsert(table, rows) {
 
 async function scanCategory(cat, weekKey) {
   console.log(`  Scansione categoria: ${cat.label}`);
-  const prompt = `Sei un analista culturale. Ricerca i 4 trend più rilevanti e recenti (ultimi 30 giorni) nella categoria "${cat.label}" nella cultura pop italiana e internazionale.
+  const prompt = `Sei un analista culturale con accesso al web. Ricerca i 4 trend più rilevanti e recenti (ultimi 30 giorni) nella categoria "${cat.label}" nella cultura pop italiana e internazionale. Per ogni trend includi le fonti reali con URL che hai trovato.
 
 Restituisci solo JSON puro, nessun testo fuori:
 [
   {
     "titolo": "nome del trend in 4-6 parole",
     "descrizione": "2-3 frasi osservative e concrete su cosa sta succedendo e perché è rilevante",
-    "intensità": "emergente | in crescita | al picco"
+    "intensità": "emergente | in crescita | al picco",
+    "sources": [{"name": "Nome pubblicazione o sito", "url": "https://url-reale.com"}]
   }
-]`;
+]
+Ogni trend deve avere 1-3 fonti con URL reali trovati durante la ricerca.`;
 
   try {
     const text = await callAnthropic(prompt);
@@ -98,6 +100,7 @@ Restituisci solo JSON puro, nessun testo fuori:
       title: t.titolo,
       description: t.descrizione,
       intensity: t.intensità,
+      sources: JSON.stringify(t.sources || []),
       source: 'auto-scan'
     }));
     await supabaseInsert('weekly_trends', rows);
@@ -109,7 +112,7 @@ Restituisci solo JSON puro, nessun testo fuori:
 
 async function scanSocialPlatform(platform, weekKey) {
   console.log(`  Scansione social: ${platform}`);
-  const prompt = `Sei un analista culturale. Ricerca i 3 trend culturali più rilevanti e recenti (ultimi 30 giorni) su ${platform} — musica, moda, linguaggio, serie/film, arte, movimenti sociali.
+  const prompt = `Sei un analista culturale con accesso al web. Ricerca i 3 trend culturali più rilevanti e recenti (ultimi 30 giorni) su ${platform} — musica, moda, linguaggio, serie/film, arte, movimenti sociali. Per ogni trend includi le fonti reali con URL trovati durante la ricerca.
 
 Restituisci solo JSON puro:
 [
@@ -117,9 +120,11 @@ Restituisci solo JSON puro:
     "titolo": "nome del trend in 4-6 parole",
     "descrizione": "2-3 frasi osservative su cosa sta succedendo su ${platform} e perché è interessante",
     "categoria": "una tra: musica, visual, linguaggio, serie, arte, sociale",
-    "intensità": "emergente | in crescita | al picco"
+    "intensità": "emergente | in crescita | al picco",
+    "sources": [{"name": "Nome pubblicazione o sito", "url": "https://url-reale.com"}]
   }
-]`;
+]
+Ogni trend deve avere 1-2 fonti con URL reali.`;
 
   try {
     const text = await callAnthropic(prompt);
@@ -133,6 +138,7 @@ Restituisci solo JSON puro:
       title: t.titolo,
       description: t.descrizione,
       intensity: t.intensità,
+      sources: JSON.stringify(t.sources || []),
       source: platform
     }));
     await supabaseInsert('weekly_trends', rows);
