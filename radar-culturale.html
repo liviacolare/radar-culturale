@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar Culturale</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-tertiary: #eeece6;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --border-light: rgba(0,0,0,0.12);
+    --border-mid: rgba(0,0,0,0.22);
+    --border-strong: rgba(0,0,0,0.35);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1c;
+      --bg-secondary: #262624;
+      --bg-tertiary: #2e2e2b;
+      --text-primary: #f0ede6;
+      --text-secondary: #a8a69f;
+      --text-tertiary: #6e6c67;
+      --border-light: rgba(255,255,255,0.10);
+      --border-mid: rgba(255,255,255,0.18);
+      --border-strong: rgba(255,255,255,0.28);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 22px; font-weight: 500; }
+  .header .sub { font-size: 13px; color: var(--text-tertiary); margin-top: 3px; }
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+  .week-nav button { font-size: 20px; border: none; background: none; cursor: pointer; color: var(--text-secondary); padding: 0 6px; }
+  .week-nav button:hover { color: var(--text-primary); }
+  .week-nav span { font-size: 13px; color: var(--text-secondary); min-width: 100px; text-align: center; }
+  .status-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); margin-bottom: 1.5rem; padding: 8px 12px; background: var(--bg-primary); border: 0.5px solid var(--border-light); border-radius: var(--radius-md); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { padding: 6px 14px; font-size: 13px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--text-secondary); font-family: var(--font); transition: all 0.15s; }
+  .tab.active { background: var(--bg-primary); color: var(--text-primary); font-weight: 500; border-color: var(--border-strong); }
+  .tab:hover:not(.active) { background: var(--bg-secondary); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .card { background: var(--bg-primary); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .card-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .cat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .cat-title { font-size: 15px; font-weight: 500; }
+  textarea { width: 100%; font-size: 13px; font-family: var(--font); min-height: 64px; resize: vertical; padding: 10px; border: 0.5px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); line-height: 1.6; }
+  textarea:focus { outline: none; border-color: var(--border-strong); }
+  input[type="text"] { font-size: 13px; font-family: var(--font); padding: 8px 10px; border: 0.5px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary); height: 36px; }
+  input[type="text"]:focus { outline: none; border-color: var(--border-strong); }
+  .btn { font-size: 12px; padding: 6px 12px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--text-secondary); font-family: var(--font); transition: all 0.15s; }
+  .btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .btn.primary { background: var(--bg-secondary); color: var(--text-primary); font-weight: 500; }
+  .btn.primary:hover { background: var(--bg-tertiary); }
+  .row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+  .row-c { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .signal-list { list-style: none; }
+  .signal-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 0.5px solid var(--border-light); font-size: 13px; gap: 10px; }
+  .signal-item:last-child { border-bottom: none; }
+  .signal-text { flex: 1; color: var(--text-primary); line-height: 1.55; }
+  .signal-meta { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; flex-shrink: 0; }
+  .del-btn { color: var(--text-tertiary); cursor: pointer; font-size: 18px; border: none; background: none; line-height: 1; padding: 0 2px; flex-shrink: 0; }
+  .del-btn:hover { color: var(--text-primary); }
+  .sep { margin: 1.25rem 0; border: none; border-top: 0.5px solid var(--border-light); }
+  .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .search-row input { flex: 1; }
+  .ai-result { margin-top: 10px; font-size: 13px; line-height: 1.75; color: var(--text-secondary); background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; border-left: 2px solid var(--border-mid); }
+  .ai-result.loading { color: var(--text-tertiary); font-style: italic; }
+  .empty-state { font-size: 13px; color: var(--text-tertiary); font-style: italic; padding: 8px 0; }
+  .intensity-bar { display: flex; gap: 3px; }
+  .pip { width: 20px; height: 5px; border-radius: 2px; cursor: pointer; border: none; padding: 0; }
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .ov-card { background: var(--bg-primary); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 1rem; cursor: pointer; transition: border-color 0.15s; }
+  .ov-card:hover { border-color: var(--border-strong); }
+  .ov-count { font-size: 28px; font-weight: 500; margin: 6px 0 2px; }
+  .ov-sub { font-size: 11px; color: var(--text-tertiary); }
+  .platform-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 7px; margin-bottom: 1rem; }
+  .plat-btn { padding: 8px 10px; border: 0.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; background: transparent; font-size: 12px; color: var(--text-secondary); text-align: left; display: flex; align-items: center; gap: 7px; font-family: var(--font); transition: all 0.15s; }
+  .plat-btn.active { border-color: var(--border-strong); background: var(--bg-secondary); color: var(--text-primary); font-weight: 500; }
+  .plat-btn:hover:not(.active) { background: var(--bg-secondary); }
+  .plat-icon { width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; color: white; }
+  .cat-filters { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .trend-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 11px 13px; margin-bottom: 8px; }
+  .trend-title { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+  .trend-body { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+  .trend-footer { margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+  .save-btn { font-size: 11px; padding: 3px 9px; border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); cursor: pointer; background: transparent; color: var(--text-tertiary); font-family: var(--font); }
+  .save-btn:hover { background: var(--bg-primary); color: var(--text-primary); }
+  .auto-section { margin-bottom: 1.25rem; }
+  .auto-section-label { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .auto-badge { background: rgba(29,158,117,0.12); color: #1D9E75; font-size: 10px; padding: 2px 7px; border-radius: 20px; }
+  .synthesis-wrap textarea { min-height: 220px; font-size: 14px; line-height: 1.8; }
+  .action-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg-primary); border: 0.5px solid var(--border-mid); border-radius: var(--radius-md); padding: 10px 16px; font-size: 13px; color: var(--text-primary); opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; }
+  @media (max-width: 560px) { .container { padding: 1rem; } .overview-grid { grid-template-columns: repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div>
+      <h1>Radar Culturale</h1>
+      <div class="sub" id="week-display"></div>
+    </div>
+    <div class="week-nav">
+      <button onclick="changeWeek(-1)">‹</button>
+      <span id="week-num"></span>
+      <button onclick="changeWeek(1)">›</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="status-dot" style="background:#888;"></div>
+    <span id="status-text">Connessione in corso...</span>
+    <span style="margin-left:auto; cursor:pointer;" onclick="loadAllData()" title="Aggiorna">
+      <i class="ti ti-refresh" style="font-size:14px;" aria-hidden="true"></i>
+    </span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showSection('overview',this)">Panoramica</button>
+    <button class="tab" onclick="showSection('social',this)"><i class="ti ti-trending-up" style="font-size:13px;margin-right:3px;" aria-hidden="true"></i>Social</button>
+    <button class="tab" onclick="showSection('musica',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#7F77DD;margin-right:4px;"></span>Musica</button>
+    <button class="tab" onclick="showSection('visual',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D85A30;margin-right:4px;"></span>Visual</button>
+    <button class="tab" onclick="showSection('linguaggio',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1D9E75;margin-right:4px;"></span>Linguaggio</button>
+    <button class="tab" onclick="showSection('serie',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#185FA5;margin-right:4px;"></span>Serie/Film/Libri</button>
+    <button class="tab" onclick="showSection('arte',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#D4537E;margin-right:4px;"></span>Arte</button>
+    <button class="tab" onclick="showSection('sociale',this)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#BA7517;margin-right:4px;"></span>Sociale</button>
+    <button class="tab" onclick="showSection('sintesi',this)">✦ Lettura</button>
+  </div>
+
+  <!-- PANORAMICA -->
+  <div class="section active" id="sec-overview">
+    <div class="overview-grid" id="overview-grid"></div>
+    <div class="card">
+      <div class="card-label">Tutti i segnali questa settimana</div>
+      <ul class="signal-list" id="all-signals"></ul>
+    </div>
+  </div>
+
+  <!-- SOCIAL -->
+  <div class="section" id="sec-social">
+    <div class="card">
+      <div class="cat-header">
+        <i class="ti ti-trending-up" style="font-size:18px;color:var(--text-secondary);" aria-hidden="true"></i>
+        <div class="cat-title">Monitor social media</div>
+      </div>
+
+      <div class="auto-section">
+        <div class="auto-section-label">
+          <span>Trend automatici questa settimana</span>
+          <span class="auto-badge">aggiornamento lunedì</span>
+        </div>
+        <ul class="signal-list" id="social-auto-list"></ul>
+      </div>
+
+      <div class="sep"></div>
+      <div class="card-label">Ricerca manuale per piattaforma</div>
+      <div class="platform-grid">
+        <button class="plat-btn active" onclick="selectPlatform('instagram',this)"><div class="plat-icon" style="background:#E1306C;">IG</div>Instagram</button>
+        <button class="plat-btn" onclick="selectPlatform('tiktok',this)"><div class="plat-icon" style="background:#111;">TK</div>TikTok</button>
+        <button class="plat-btn" onclick="selectPlatform('youtube',this)"><div class="plat-icon" style="background:#FF0000;">YT</div>YouTube</button>
+        <button class="plat-btn" onclick="selectPlatform('twitter',this)"><div class="plat-icon" style="background:#111;">X</div>X / Twitter</button>
+        <button class="plat-btn" onclick="selectPlatform('pinterest',this)"><div class="plat-icon" style="background:#E60023;">P</div>Pinterest</button>
+        <button class="plat-btn" onclick="selectPlatform('substack',this)"><div class="plat-icon" style="background:#FF6719;">S</div>Substack</button>
+        <button class="plat-btn" onclick="selectPlatform('reddit',this)"><div class="plat-icon" style="background:#FF4500;">R</div>Reddit</button>
+        <button class="plat-btn" onclick="selectPlatform('linkedin',this)"><div class="plat-icon" style="background:#0077B5;">Li</div>LinkedIn</button>
+      </div>
+      <div class="cat-filters" id="cat-filters">
+        <button class="btn primary" onclick="toggleCatFilter('tutte',this)">Tutte</button>
+        <button class="btn" onclick="toggleCatFilter('musica',this)">Musica</button>
+        <button class="btn" onclick="toggleCatFilter('visual',this)">Visual</button>
+        <button class="btn" onclick="toggleCatFilter('linguaggio',this)">Linguaggio</button>
+        <button class="btn" onclick="toggleCatFilter('serie',this)">Serie/Film</button>
+        <button class="btn" onclick="toggleCatFilter('arte',this)">Arte</button>
+        <button class="btn" onclick="toggleCatFilter('sociale',this)">Sociale</button>
+      </div>
+      <div class="search-row" style="margin-bottom:1rem;">
+        <input type="text" id="social-query-input" placeholder="Es: trend audio ambient, estetica gorpcore..." style="flex:1;">
+        <button class="btn primary" onclick="runSocialScan()">Scansiona ↗</button>
+      </div>
+      <div id="social-results"><div class="empty-state">Avvia una scansione manuale.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Segnali social salvati manualmente</div>
+      <ul class="signal-list" id="social-saved-list"></ul>
+    </div>
+  </div>
+
+  <!-- CATEGORIE -->
+  <div class="section" id="sec-musica"><div class="card" id="card-musica"></div></div>
+  <div class="section" id="sec-visual"><div class="card" id="card-visual"></div></div>
+  <div class="section" id="sec-linguaggio"><div class="card" id="card-linguaggio"></div></div>
+  <div class="section" id="sec-serie"><div class="card" id="card-serie"></div></div>
+  <div class="section" id="sec-arte"><div class="card" id="card-arte"></div></div>
+  <div class="section" id="sec-sociale"><div class="card" id="card-sociale"></div></div>
+
+  <!-- LETTURA -->
+  <div class="section" id="sec-sintesi">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:15px;font-weight:500;">✦ Lettura della settimana</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" onclick="loadAutoSynthesis()">Carica da AI ↗</button>
+          <button class="btn primary" onclick="generateSynthesis()">Genera nuova ↗</button>
+        </div>
+      </div>
+      <div class="synthesis-wrap">
+        <textarea id="synthesis-text" placeholder="La lettura automatica viene generata ogni lunedì insieme ai trend. Clicca 'Carica da AI' per visualizzarla, o 'Genera nuova' per crearne una fresca."></textarea>
+      </div>
+      <div class="action-row">
+        <button class="btn" onclick="copySynthesis()"><i class="ti ti-copy" style="font-size:13px;" aria-hidden="true"></i> Copia</button>
+        <button class="btn" onclick="saveSynthesisToSupabase()"><i class="ti ti-device-floppy" style="font-size:13px;" aria-hidden="true"></i> Salva</button>
+        <button class="btn" onclick="exportLettura()"><i class="ti ti-download" style="font-size:13px;" aria-hidden="true"></i> Esporta .txt</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Segnali attivi questa settimana</div>
+      <ul class="signal-list" id="synthesis-signals"></ul>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fekigyjxbsmifanoaljd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZla2lneWp4YnNtaWZhbm9hbGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NTI4NzgsImV4cCI6MjA5NTIyODg3OH0.KCbSCqfYVR8sqO27x0XEcMUEfUQCawwYHzzvgAgcybA';
+
+const CATS = {
+  musica:     { label:'Musica e audio',      color:'#7F77DD' },
+  visual:     { label:'Visual e moda',       color:'#D85A30' },
+  linguaggio: { label:'Linguaggio e meme',   color:'#1D9E75' },
+  serie:      { label:'Serie, film, libri',  color:'#185FA5' },
+  arte:       { label:'Arte e design',       color:'#D4537E' },
+  sociale:    { label:'Movimenti sociali',   color:'#BA7517' },
+  social:     { label:'Social media',        color:'#888780' },
+};
+
+let currentWeekOffset = 0;
+let selectedPlatform = 'instagram';
+let selectedCatFilter = 'tutte';
+let lastSocialTrends = [];
+let autoTrends = {};
+let manualSignals = {};
+let localIntensities = {};
+
+// ── Supabase helpers ──────────────────────────────────────
+
+async function sbFetch(path, opts = {}) {
+  const url = SUPABASE_URL + '/rest/v1/' + path;
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      ...(opts.headers || {})
+    }
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const ct = res.headers.get('content-type') || '';
+  return ct.includes('json') ? res.json() : res.text();
+}
+
+// ── Week helpers ──────────────────────────────────────────
+
+function getWeekKey(offset) {
+  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return d.getFullYear() + '-W' + String(week).padStart(2,'0');
+}
+
+function getWeekLabel(offset) {
+  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+  const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay()+6)%7));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const fmt = dt => dt.toLocaleDateString('it-IT',{day:'numeric',month:'long'});
+  return fmt(mon) + ' – ' + fmt(sun);
+}
+
+function getWeekNum(offset) {
+  const d = new Date(); d.setDate(d.getDate() + offset * 7);
+  const jan1 = new Date(d.getFullYear(), 0, 1);
+  const week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return 'Sett. ' + week + ', ' + d.getFullYear();
+}
+
+function changeWeek(dir) {
+  if (dir === 1 && currentWeekOffset >= 0) return;
+  currentWeekOffset += dir;
+  updateWeekDisplay();
+  loadAllData();
+}
+
+function updateWeekDisplay() {
+  document.getElementById('week-display').textContent = getWeekLabel(currentWeekOffset);
+  document.getElementById('week-num').textContent = getWeekNum(currentWeekOffset);
+}
+
+// ── Data loading ──────────────────────────────────────────
+
+async function loadAllData() {
+  setStatus('loading', 'Caricamento dati...');
+  const wk = getWeekKey(currentWeekOffset);
+  try {
+    const [trends, signals] = await Promise.all([
+      sbFetch('weekly_trends?week_key=eq.' + wk + '&order=created_at.desc'),
+      sbFetch('manual_signals?week_key=eq.' + wk + '&order=created_at.desc'),
+    ]);
+
+    autoTrends = {};
+    trends.forEach(t => {
+      const cat = t.platform ? 'social' : t.category;
+      if (!autoTrends[cat]) autoTrends[cat] = [];
+      autoTrends[cat].push(t);
+    });
+
+    manualSignals = {};
+    signals.forEach(s => {
+      if (!manualSignals[s.category]) manualSignals[s.category] = [];
+      manualSignals[s.category].push(s);
+    });
+
+    renderAll();
+    setStatus('ok', 'Aggiornato · ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}));
+  } catch(e) {
+    setStatus('error', 'Errore di connessione — dati non disponibili');
+    console.error(e);
+  }
+}
+
+function setStatus(state, msg) {
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  txt.textContent = msg;
+  dot.style.background = state === 'ok' ? '#1D9E75' : state === 'error' ? '#E24B4A' : '#BA7517';
+}
+
+// ── Render ────────────────────────────────────────────────
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderAll() {
+  ['musica','visual','linguaggio','serie','arte','sociale'].forEach(buildCategoryCard);
+  renderSocialAuto();
+  renderSocialSaved();
+  renderOverview();
+}
+
+function buildCategoryCard(cat) {
+  const el = document.getElementById('card-' + cat);
+  if (!el) return;
+  const cv = CATS[cat];
+  const auto = autoTrends[cat] || [];
+  const manual = manualSignals[cat] || [];
+
+  let html = '<div class="cat-header"><div class="cat-dot" style="background:' + cv.color + ';"></div><div class="cat-title">' + esc(cv.label) + '</div></div>';
+
+  // Auto trends
+  if (auto.length) {
+    html += '<div class="auto-section"><div class="auto-section-label"><span>Trend automatici</span><span class="auto-badge">lunedì</span></div>';
+    html += auto.map(t => {
+      const ic = t.intensity === 'al picco' ? '#E24B4A' : t.intensity === 'in crescita' ? '#BA7517' : '#1D9E75';
+      const ib = t.intensity === 'al picco' ? 'rgba(226,75,74,0.1)' : t.intensity === 'in crescita' ? 'rgba(186,117,23,0.1)' : 'rgba(29,158,117,0.1)';
+      return '<div class="trend-card"><div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:5px;"><div class="trend-title">' + esc(t.title) + '</div>' +
+        '<span class="badge" style="background:' + ib + ';color:' + ic + ';flex-shrink:0;">' + esc(t.intensity||'') + '</span></div>' +
+        '<div class="trend-body">' + esc(t.description) + '</div></div>';
+    }).join('');
+    html += '</div><div class="sep"></div>';
+  }
+
+  // Manual signals
+  html += '<div class="card-label">Segnale manuale</div>';
+  html += '<div class="row"><textarea id="' + cat + '-input" placeholder="Aggiungi un\'osservazione..."></textarea></div>';
+  html += '<div class="row-c"><span style="font-size:12px;color:var(--text-tertiary);">Intensità:</span><div class="intensity-bar" id="' + cat + '-intensity"></div><button class="btn primary" onclick="addManualSignal(\'' + cat + '\')">+ Aggiungi</button></div>';
+
+  if (manual.length) {
+    html += '<ul class="signal-list">' + manual.map((sig,i) => {
+      const ts = new Date(sig.created_at).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+      const dots = '●'.repeat(sig.level||2) + '○'.repeat(3-(sig.level||2));
+      return '<li class="signal-item"><span class="signal-text">' + esc(sig.text) + '</span>' +
+        '<span class="signal-meta">' + dots + ' ' + ts + '</span>' +
+        '<button class="del-btn" onclick="deleteManualSignal(\'' + (sig.id||'') + '\',\'' + cat + '\',' + i + ')">×</button></li>';
+    }).join('') + '</ul>';
+  } else {
+    html += '<div class="empty-state">Nessun segnale manuale ancora.</div>';
+  }
+
+  html += '<div class="sep"></div><div class="card-label">Ricerca web AI</div>';
+  html += '<div class="search-row"><input type="text" id="' + cat + '-query" placeholder="Cerca trend recenti..." style="flex:1;"><button class="btn primary" onclick="aiSearch(\'' + cat + '\')">Cerca ↗</button></div>';
+  html += '<div id="' + cat + '-ai-result"></div>';
+
+  el.innerHTML = html;
+  buildIntensityBar(cat);
+}
+
+function renderSocialAuto() {
+  const el = document.getElementById('social-auto-list');
+  if (!el) return;
+  const items = autoTrends['social'] || [];
+  if (!items.length) { el.innerHTML = '<li class="empty-state">Nessun trend social questa settimana — arriveranno lunedì.</li>'; return; }
+  el.innerHTML = items.map((t,i) => {
+    const ts = new Date(t.created_at).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+    return '<li class="signal-item"><span class="signal-text"><strong>' + esc(t.title) + '</strong> — ' + esc(t.description) + '</span>' +
+      '<span class="signal-meta">' + esc(t.platform||'') + ' · ' + ts + '</span></li>';
+  }).join('');
+}
+
+function renderSocialSaved() {
+  const el = document.getElementById('social-saved-list');
+  if (!el) return;
+  const items = manualSignals['social'] || [];
+  if (!items.length) { el.innerHTML = '<li class="empty-state">Nessun segnale social salvato manualmente.</li>'; return; }
+  el.innerHTML = items.map((sig,i) => {
+    const ts = new Date(sig.created_at).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+    return '<li class="signal-item"><span class="signal-text">' + esc(sig.text) + '</span>' +
+      '<span class="signal-meta">' + esc(sig.source||'') + ' · ' + ts + '</span>' +
+      '<button class="del-btn" onclick="deleteManualSignal(\'' + (sig.id||'') + '\',\'social\',' + i + ')">×</button></li>';
+  }).join('');
+}
+
+function renderOverview() {
+  const grid = document.getElementById('overview-grid');
+  grid.innerHTML = Object.entries(CATS).map(([k,v]) => {
+    const auto = (autoTrends[k]||[]).length;
+    const manual = (manualSignals[k]||[]).length;
+    const total = auto + manual;
+    return '<div class="ov-card" onclick="showTabByKey(\'' + k + '\')">' +
+      '<div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:50%;background:' + v.color + ';flex-shrink:0;"></div>' +
+      '<span style="font-size:12px;color:var(--text-tertiary);">' + esc(v.label) + '</span></div>' +
+      '<div class="ov-count" style="color:var(--text-primary);">' + total + '</div>' +
+      '<div class="ov-sub">' + (total===1?'segnale':'segnali') + '</div></div>';
+  }).join('');
+
+  const allEl = document.getElementById('all-signals');
+  let all = [];
+  Object.entries(autoTrends).forEach(([cat,items]) => items.forEach(t => all.push({text: t.title + ' — ' + t.description, cat, ts: new Date(t.created_at).getTime(), auto: true})));
+  Object.entries(manualSignals).forEach(([cat,items]) => items.forEach(s => all.push({text: s.text, cat, ts: new Date(s.created_at).getTime(), auto: false})));
+  all.sort((a,b) => b.ts - a.ts);
+  if (!all.length) { allEl.innerHTML = '<li class="empty-state">Nessun segnale questa settimana.</li>'; return; }
+  allEl.innerHTML = all.map(sig => {
+    const cv = CATS[sig.cat]||{label:sig.cat,color:'#888'};
+    const ts = new Date(sig.ts).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+    return '<li class="signal-item"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + cv.color + ';flex-shrink:0;margin-top:4px;"></span>' +
+      '<span class="signal-text" style="margin-left:8px;">' + esc(sig.text) + '</span>' +
+      '<span class="signal-meta">' + esc(cv.label) + ' · ' + ts + '</span></li>';
+  }).join('');
+}
+
+function renderSynthesisSignals() {
+  const el = document.getElementById('synthesis-signals');
+  let all = [];
+  Object.entries(autoTrends).forEach(([cat,items]) => items.forEach(t => all.push({text:t.title+' — '+t.description, cat})));
+  Object.entries(manualSignals).forEach(([cat,items]) => items.forEach(s => all.push({text:s.text, cat})));
+  if (!all.length) { el.innerHTML = '<li class="empty-state">Nessun segnale questa settimana.</li>'; return; }
+  el.innerHTML = all.map(sig => {
+    const cv = CATS[sig.cat]||{label:sig.cat,color:'#888'};
+    return '<li class="signal-item"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + cv.color + ';flex-shrink:0;margin-top:4px;"></span>' +
+      '<span class="signal-text" style="margin-left:8px;">' + esc(sig.text) + '</span>' +
+      '<span class="signal-meta">' + esc(cv.label) + '</span></li>';
+  }).join('');
+}
+
+// ── Manual signals ────────────────────────────────────────
+
+async function addManualSignal(cat, text, source) {
+  if (!text) {
+    const inp = document.getElementById(cat + '-input');
+    text = inp ? inp.value.trim() : '';
+    if (!text) return;
+    if (inp) inp.value = '';
+  }
+  const level = localIntensities[cat] || 2;
+  const wk = getWeekKey(currentWeekOffset);
+  try {
+    await sbFetch('manual_signals', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ week_key: wk, category: cat, text, level, source: source || 'manuale' })
+    });
+    await loadAllData();
+    toast('Segnale aggiunto');
+  } catch(e) { toast('Errore nel salvataggio'); console.error(e); }
+}
+
+async function deleteManualSignal(id, cat, idx) {
+  if (!id) return;
+  try {
+    await sbFetch('manual_signals?id=eq.' + id, { method: 'DELETE' });
+    await loadAllData();
+  } catch(e) { toast('Errore'); console.error(e); }
+}
+
+// ── Intensity ─────────────────────────────────────────────
+
+function buildIntensityBar(cat) {
+  const bar = document.getElementById(cat + '-intensity');
+  if (!bar) return;
+  const cur = localIntensities[cat] || 2;
+  const color = CATS[cat] ? CATS[cat].color : '#888';
+  bar.innerHTML = [1,2,3].map(n =>
+    '<button class="pip" style="background:' + (n<=cur?color:'var(--border-mid)') + ';" onclick="setIntensity(\'' + cat + '\',' + n + ')"></button>'
+  ).join('');
+}
+
+function setIntensity(cat, val) {
+  localIntensities[cat] = val;
+  buildIntensityBar(cat);
+}
+
+// ── Navigation ────────────────────────────────────────────
+
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'sintesi') renderSynthesisSignals();
+}
+
+function showTabByKey(cat) {
+  const tabOrder = ['overview','social','musica','visual','linguaggio','serie','arte','sociale','sintesi'];
+  const idx = tabOrder.indexOf(cat);
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const sec = document.getElementById('sec-' + cat);
+  if (sec) sec.classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+}
+
+// ── Social scan ───────────────────────────────────────────
+
+function selectPlatform(p, btn) {
+  selectedPlatform = p;
+  document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleCatFilter(cat, btn) {
+  selectedCatFilter = cat;
+  document.querySelectorAll('#cat-filters .btn').forEach(b => b.classList.remove('primary'));
+  btn.classList.add('primary');
+}
+
+const PLAT_LABELS = { instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', twitter:'X/Twitter', pinterest:'Pinterest', substack:'Substack', reddit:'Reddit', linkedin:'LinkedIn' };
+
+async function runSocialScan() {
+  const platLabel = PLAT_LABELS[selectedPlatform] || selectedPlatform;
+  const catFilter = selectedCatFilter === 'tutte' ? 'cultura pop in generale' : (CATS[selectedCatFilter]?.label || selectedCatFilter);
+  const customQ = document.getElementById('social-query-input').value.trim();
+  const resultEl = document.getElementById('social-results');
+  resultEl.innerHTML = '<div class="ai-result loading">Scansione ' + platLabel + ' in corso...</div>';
+
+  const prompt = 'Sei un analista culturale. Ricerca i trend più rilevanti e recenti su ' + platLabel + ' relativi a: ' + catFilter + (customQ ? ' — in particolare: "' + customQ + '"' : '') + '.\n\nRestituisci esattamente 4 trend, solo JSON puro:\n[\n  {\n    "titolo": "nome del trend in 4-6 parole",\n    "descrizione": "2-3 frasi osservative su cosa sta succedendo e perché è interessante",\n    "categoria": "musica | visual | linguaggio | serie | arte | sociale",\n    "intensità": "emergente | in crescita | al picco"\n  }\n]';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, tools: [{ type: 'web_search_20250305', name: 'web_search' }], messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const textBlocks = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    let trends = [];
+    try { const m = textBlocks.replace(/```json|```/g,'').match(/\[[\s\S]*\]/); if (m) trends = JSON.parse(m[0]); } catch(e) {}
+
+    if (!trends.length) { resultEl.innerHTML = '<div class="ai-result">' + esc(textBlocks) + '</div>'; return; }
+    lastSocialTrends = trends.map(t => ({...t, piattaforma: platLabel}));
+    const iColor = { 'emergente':'#1D9E75','in crescita':'#BA7517','al picco':'#E24B4A' };
+    const iBg = { 'emergente':'rgba(29,158,117,0.1)','in crescita':'rgba(186,117,23,0.1)','al picco':'rgba(226,75,74,0.1)' };
+    resultEl.innerHTML = trends.map((t,idx) => {
+      const ic = iColor[t.intensità]||'#888'; const ib = iBg[t.intensità]||'rgba(0,0,0,0.06)';
+      return '<div class="trend-card"><div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:5px;"><div class="trend-title">' + esc(t.titolo) + '</div><span class="badge" style="background:' + ib + ';color:' + ic + ';flex-shrink:0;">' + esc(t.intensità) + '</span></div><div class="trend-body">' + esc(t.descrizione) + '</div><div class="trend-footer"><span class="badge" style="background:rgba(0,0,0,0.06);color:var(--text-secondary);">' + esc(platLabel) + '</span><span class="badge" style="background:rgba(0,0,0,0.06);color:var(--text-secondary);">' + esc(t.categoria||'') + '</span><button class="save-btn" onclick="saveTrend(' + idx + ')">+ Salva</button></div></div>';
+    }).join('');
+  } catch(e) { resultEl.innerHTML = '<div class="ai-result">Errore. Riprova.</div>'; }
+}
+
+function saveTrend(idx) {
+  const t = lastSocialTrends[idx];
+  if (!t) return;
+  addManualSignal('social', '[' + t.piattaforma + '] ' + t.titolo + ' — ' + t.descrizione, t.piattaforma);
+}
+
+// ── Web search per categoria ──────────────────────────────
+
+async function aiSearch(cat) {
+  const q = document.getElementById(cat + '-query')?.value.trim();
+  if (!q) return;
+  const resultEl = document.getElementById(cat + '-ai-result');
+  resultEl.className = 'ai-result loading'; resultEl.textContent = 'Ricerca in corso...';
+  const prompt = 'Sei un osservatore culturale. Ricerca: "' + q + '" nella categoria "' + CATS[cat].label + '". 3-4 segnali concreti degli ultimi 6 mesi, frasi osservative e specifiche. Inizia direttamente.';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, tools: [{ type: 'web_search_20250305', name: 'web_search' }], messages: [{ role: 'user', content: prompt }] }) });
+    const data = await res.json();
+    const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+    resultEl.className = 'ai-result';
+    resultEl.innerHTML = text.split('\n').filter(l => l.trim()).map(l => '<p style="margin-bottom:6px;">' + esc(l) + '</p>').join('');
+  } catch(e) { resultEl.className = 'ai-result'; resultEl.textContent = 'Errore. Riprova.'; }
+}
+
+// ── Synthesis ─────────────────────────────────────────────
+
+async function loadAutoSynthesis() {
+  const wk = getWeekKey(currentWeekOffset);
+  try {
+    const data = await sbFetch('weekly_syntheses?week_key=eq.' + wk + '&select=content');
+    if (data.length) { document.getElementById('synthesis-text').value = data[0].content; toast('Lettura caricata'); }
+    else { document.getElementById('synthesis-text').value = ''; toast('Nessuna lettura automatica questa settimana'); }
+  } catch(e) { toast('Errore nel caricamento'); }
+}
+
+async function generateSynthesis() {
+  let allSig = [];
+  Object.entries(autoTrends).forEach(([cat,items]) => items.forEach(t => allSig.push('[' + (CATS[cat]?.label||cat) + '] ' + t.title + ' — ' + t.description)));
+  Object.entries(manualSignals).forEach(([cat,items]) => items.forEach(s => allSig.push('[' + (CATS[cat]?.label||cat) + '] ' + s.text)));
+  if (!allSig.length) { document.getElementById('synthesis-text').value = 'Inserisci prima alcuni segnali.'; return; }
+  const area = document.getElementById('synthesis-text'); area.value = 'Generazione in corso...';
+  const weekLabel = getWeekLabel(currentWeekOffset);
+  const prompt = 'Sei una consulente strategica che osserva la cultura contemporanea. Segnali della settimana del ' + weekLabel + ':\n\n' + allSig.join('\n') + '\n\nScrivi una lettura culturale breve (200-280 parole) che nomini quello che sta succedendo — senza spiegare, senza insegnare. Stile osservatorio, denso, punto di vista preciso. Inizia con il segnale più interessante. Prosa continua, nessun elenco.';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }) });
+    const data = await res.json();
+    area.value = data.content.filter(b => b.type === 'text').map(b => b.text).join('\n');
+    await saveSynthesisToSupabase();
+  } catch(e) { area.value = 'Errore. Riprova.'; }
+}
+
+async function saveSynthesisToSupabase() {
+  const wk = getWeekKey(currentWeekOffset);
+  const content = document.getElementById('synthesis-text').value;
+  try {
+    await sbFetch('weekly_syntheses', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ week_key: wk, content, updated_at: new Date().toISOString() }) });
+    toast('Lettura salvata');
+  } catch(e) { toast('Errore nel salvataggio'); }
+}
+
+function copySynthesis() { navigator.clipboard.writeText(document.getElementById('synthesis-text').value).catch(()=>{}); toast('Copiato'); }
+
+function exportLettura() {
+  const text = document.getElementById('synthesis-text').value.trim();
+  if (!text) return;
+  const blob = new Blob(['Radar Culturale — ' + getWeekLabel(currentWeekOffset) + '\n\n' + text], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'lettura-' + getWeekKey(currentWeekOffset) + '.txt'; a.click();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Init ──────────────────────────────────────────────────
+updateWeekDisplay();
+loadAllData();
+</script>
+</body>
+</html>

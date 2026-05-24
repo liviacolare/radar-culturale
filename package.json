@@ -1,0 +1,12 @@
+{
+  "name": "radar-culturale",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Radar Culturale — scansione settimanale automatica",
+  "scripts": {
+    "scan": "node scripts/weekly-scan.mjs"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
