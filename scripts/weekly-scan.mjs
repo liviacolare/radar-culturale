@@ -30,7 +30,8 @@ const CATEGORIES = [
   { key: 'musica',     label: 'Musica e audio' },
   { key: 'visual',     label: 'Visual e moda' },
   { key: 'linguaggio', label: 'Linguaggio e meme' },
-  { key: 'serie',      label: 'Serie, film, libri' },
+  { key: 'serie',      label: 'Serie e cinema' },
+  { key: 'libri',      label: 'Libri e narrativa' },
   { key: 'arte',       label: 'Arte e design' },
   { key: 'sociale',    label: 'Movimenti sociali' },
 ];
@@ -119,7 +120,7 @@ Restituisci solo JSON puro:
   {
     "titolo": "nome del trend in 4-6 parole",
     "descrizione": "2-3 frasi osservative su cosa sta succedendo su ${platform} e perché è interessante",
-    "categoria": "una tra: musica, visual, linguaggio, serie, arte, sociale",
+    "categoria": "una tra: musica, visual, linguaggio, serie, libri, arte, sociale",
     "intensità": "emergente | in crescita | al picco",
     "sources": [{"name": "Nome pubblicazione o sito", "url": "https://url-reale.com"}]
   }
